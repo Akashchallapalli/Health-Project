@@ -34,7 +34,22 @@ pipeline {
             steps {
                 sh 'mvn checkstyle:checkstyle'
             }
+        }
+         tage('Sonar Analysis') {
+            environment {
+                scannerHome = tool 'sonar4.7'
+            }
+            steps {
+               withSonarQubeEnv('sonar') {
+                   sh '''${scannerHome}/bin/sonar-scanner 
+                mvn sonar:sonar \
+                    -Dsonar.projectKey=E-Telihealth \
+                    -Dsonar.host.url=http://18.207.3.70 \
+                    -Dsonar.login=b2ee88c3d76f5279667c7eb0f51b40ce8fb1a6f9
 
+              }
+            }
+        }
          stage('UploadArtifact') {
              steps {
                 script {
