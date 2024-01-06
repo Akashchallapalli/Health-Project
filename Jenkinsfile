@@ -33,9 +33,9 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 sh 'mvn sonar:sonar \
-                         -Dsonar.projectKey=ETeilhealth_dockerimg \
-                         -Dsonar.host.url=http://100.25.200.100 \
-                         -Dsonar.login=7852a247c95d20cbd61dcd3edf682e9d5767cb18'
+  -Dsonar.projectKey=ETeilhealth_dockerimg \
+  -Dsonar.host.url=http://35.175.129.236 \
+  -Dsonar.login=f456c8727162990fff4dd8c14837e43c839fdad8'
             }
         }
 
