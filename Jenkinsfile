@@ -32,9 +32,10 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                sh 'mvn sonar:sonar -Dsonar.projectKey=E-Telihealth_docker 
-                                    -Dsonar.host.url=http://52.87.235.3 
-                                    -Dsonar.login=5820816f46eecebc55fd7bce035f7f44decd17ca'
+                sh 'mvn sonar:sonar \
+                         -Dsonar.projectKey=ETeilhealth_dockerimg \
+                         -Dsonar.host.url=http://100.25.200.100 \
+                         -Dsonar.login=7852a247c95d20cbd61dcd3edf682e9d5767cb18'
             }
         }
 
