@@ -5,23 +5,16 @@ pipeline {
         jdk "JDK_11"
     }
 
+    environment {
+        registryCredential = 'ecr:us-east-1:awscreds'
+        appRegistry = "241227406647.dkr.ecr.us-east-1.amazonaws.com/e-telihealthimg"
+        etelihealthRegistry = "https://241227406647.dkr.ecr.us-east-1.amazonaws.com"
+    }
+
     stages {
         stage('Fetch code') {
             steps {
                 git branch: 'main', url: 'https://github.com/Akashchallapalli/Health-Project.git'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'mvn clean install -DskipTests'
-            }
-
-            post {
-                success {
-                    echo 'Now Archiving it...'
-                    archiveArtifacts artifacts: '**/target/*.jar'
-                }
             }
         }
 
@@ -37,41 +30,31 @@ pipeline {
             }
         }
 
-        stage('Sonar Analysis') {
+        stage('SonarQube Analysis') {
             steps {
-                sh '''
-                    mvn sonar:sonar \
-                    -Dsonar.projectKey=E-Telihealth \
-                    -Dsonar.host.url=http://18.207.3.70 \
-                    -Dsonar.login=b2ee88c3d76f5279667c7eb0f51b40ce8fb1a6f9
-                '''
+                sh 'mvn sonar:sonar -Dsonar.projectKey=E-Telihealth_docker 
+                                    -Dsonar.host.url=http://52.87.235.3 
+                                    -Dsonar.login=5820816f46eecebc55fd7bce035f7f44decd17ca'
             }
         }
 
-    
-       stage('UploadArtifact') {
-             steps {
+        stage('Build App Image') {
+            steps {
                 script {
-                nexusArtifactUploader(
-                nexusVersion: 'nexus3',
-                protocol: 'http',
-                nexusUrl: '44.201.152.111:8081',  // Remove extra 'http://'
-                groupId: 'com.ns.healthproject',
-                version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                repository: 'E-Telihealth',
-                credentialsId: 'nexuslogin',
-                artifacts: [
-                    [artifactId: 'E-Telihealth',
-                     classifier: '',
-                     file: 'target/E-Telihealth-0.0.1-SNAPSHOT.jar',
-                     type: 'jar']
-                ]
-            )
+                    dockerImage = docker.build("${appRegistry}:${BUILD_NUMBER}", "./")
+                }
+            }
+        }
+
+        stage('Upload App Image') {
+            steps {
+                script {
+                    docker.withRegistry("${etelihealthRegistry}", registryCredential) {
+                        dockerImage.push("${BUILD_NUMBER}")
+                        dockerImage.push('latest')
+                    }
+                }
+            }
         }
     }
 }
-
-
-    }
-}
-
